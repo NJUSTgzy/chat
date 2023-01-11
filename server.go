@@ -71,8 +71,10 @@ func (s *Server) listenUser(conn net.Conn) {
 	for {
 		n, err := conn.Read(buf)
 		msg := string(buf)
+		fmt.Println(msg)
 		if n == 0 {
 			s.offline(conn)
+			continue
 		}
 
 		if err == nil {
@@ -83,7 +85,9 @@ func (s *Server) listenUser(conn net.Conn) {
 }
 
 func (s *Server) offline(conn net.Conn) {
+
 	name := conn.RemoteAddr().String()
+	fmt.Println(name + "offline")
 	close(s.OnlineMap[name].c)
 	conn.Close()
 	delete(s.OnlineMap, name)

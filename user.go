@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"strings"
 	"time"
@@ -61,7 +60,10 @@ func (u *User) SendMsg(msg string) {
 }
 
 func (u *User) DoMsg(msg string, s *Server) {
-	fmt.Println(msg)
+	le := len(msg)
+	if msg[:le/2] == msg[le/2:] {
+		msg = msg[:le/2]
+	}
 	if msg == "who" {
 		u.conn.Write([]byte(GetKeys(s.OnlineMap, 2)[0]))
 	} else if msg[:3] == "to|" {
@@ -81,7 +83,7 @@ func (u *User) DoMsg(msg string, s *Server) {
 	} else if msg == "who am i" {
 		u.SendMsg(u.name)
 	} else {
-		msg = u.name + time.Now().String() + msg
+		msg = u.name + "  " + time.Now().Format("2006-01-02 15:04:05") + "  " + msg
 		s.Message <- msg
 	}
 }
