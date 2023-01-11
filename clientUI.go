@@ -59,9 +59,7 @@ func snedMsg(c *Client, entry *widget.Entry) func() {
 		entry.Text = ""
 		entry.Refresh()
 		sendMssg(c, msg)
-		sendMsg := widget.NewLabel("you say:" + msg)
-		c.win.chatRoom.Add(sendMsg)
-		c.win.chatRoom.Refresh()
+
 	}
 }
 
@@ -131,9 +129,7 @@ func chatTo(c *Client, s string) func() {
 }
 
 func sendMssg(c *Client, text string) {
-	text = c.usr.name + " say: " + text
 	c.usr.conn.Write([]byte(text))
-	fmt.Println("down")
 }
 
 func connectToServer(c *Client) func() {

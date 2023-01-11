@@ -54,9 +54,8 @@ func (c *Client) cStart(IP string, PORT string) {
 }
 
 func (c *Client) listenMsg() {
-
+	buf := make([]byte, 4096)
 	for {
-		buf := make([]byte, 4096)
 		read, err := c.usr.conn.Read(buf)
 		if err != nil {
 			return

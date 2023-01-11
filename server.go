@@ -63,43 +63,41 @@ func (s *Server) Start() {
 
 func (s *Server) Handle(conn net.Conn) {
 	s.online(conn)
-	go s.listenUser(conn)
+	s.listenUser(conn)
 }
 
 func (s *Server) listenUser(conn net.Conn) {
-
+	buf := make([]byte, 4096)
 	for {
-		buf := make([]byte, 4096)
 		n, err := conn.Read(buf)
+		msg := string(buf)
 		if n == 0 {
 			s.offline(conn)
 		}
-		if err != nil {
-			s.Message <- string(buf)
 
-			fmt.Println("s.Message: " + string(buf))
+		if err == nil {
+			s.OnlineMap[conn.RemoteAddr().String()].DoMsg(msg, s)
 		}
 
 	}
 }
 
 func (s *Server) offline(conn net.Conn) {
+	name := conn.RemoteAddr().String()
+	close(s.OnlineMap[name].c)
+	conn.Close()
+	delete(s.OnlineMap, name)
 
 }
 
 func (s *Server) online(conn net.Conn) {
 	User := NewUser(conn)
-	go User.ListenMsg()
+	//go User.ListenMsg()
 	fmt.Println(User.name, " online...")
 	s.UserLock.Lock()
 	s.OnlineMap[User.name] = User
 	s.nowPeople++
 	s.UserLock.Unlock()
-}
-
-func (s *Server) BroadCast(u *User, msg string) {
-	sendMsg := "[" + u.Addr + "]" + u.name + ":" + msg
-	s.Message <- sendMsg
 }
 
 func serverStart(s *Server) func() {
@@ -116,17 +114,17 @@ func serverStart(s *Server) func() {
 
 func (s *Server) ListenMessager() {
 	for {
-		fmt.Println(s.Message)
 		msg := <-s.Message
-		s.Message = nil
-		fmt.Println(s.Message)
 
 		if msg == "--all" {
 			msg = GetKeys(s.OnlineMap, 1)[0]
 		}
 		for _, u := range s.OnlineMap {
-			u.c <- msg
-			fmt.Println(u.c)
+			_, err := u.conn.Write([]byte(msg))
+			if err != nil {
+				fmt.Println("err in write")
+				return
+			}
 		}
 	}
 }
