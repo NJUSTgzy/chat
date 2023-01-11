@@ -6,7 +6,7 @@ import (
 
 func main() {
 
-	if os.Args == nil || os.Args[1] == "client" || os.Args[1] == "" {
+	if true {
 
 		IP := "127.0.0.2"
 		PORT := "9090"

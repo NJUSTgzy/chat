@@ -38,12 +38,15 @@ func cInit() *Client {
 func (c *Client) cStart(IP string, PORT string) {
 
 	c.win.Win = c.win.App.NewWindow("client")
-	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", IP, PORT))
-	if err != nil {
-		fmt.Println("connect err")
-	} else {
-		fmt.Println("client connected")
-		c.usr = NewUser(conn)
+	for {
+		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", IP, PORT))
+		if err != nil {
+			continue
+		} else {
+			fmt.Println("client connected")
+			c.usr = NewUser(conn)
+			break
+		}
 	}
 
 	go c.listenMsg()
